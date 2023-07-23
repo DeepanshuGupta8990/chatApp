@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <style>
+    /* CSS styles for the chat interface */
+    body{
+      background-color: #c3bbb1;
+    }
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+ 
+    }
+    #messages li {
+      padding: 5px 10px;
+    }
+    /* #messages li:nth-child(odd) {
+      background: #eee;
+    } */
+    .current-user {
+      background-color: lightblue;
+      font-weight: bold;
+      margin: 10px;
+      text-align: right;
+      width: 200px;
+      margin-left: calc(90vw - 100px);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .otherUser{
+      background-color: pink;
+      margin: 10px;
+      width: 200px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    #message{
+     width: 30vh;
+     outline: none;
+     border: 1px solid black;
+     height: 20px;
+    border-radius: 6px;
+
+    }
+  #div1{
+    position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 10%;
+  }
+  </style>
+</head>
+<body>
+  <!-- HTML structure for the chat interface -->
+  <ul id="messages"></ul>
+  <form id="chat-form" action="">
+    <div id="div1">
+      <input id="message" autocomplete="off" />
+      <button id="btn1" type="submit">Send</button>
+    </div>
+  </form>
+
+  <!-- Include necessary JavaScript libraries -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const username = prompt('Enter your username:'); // Prompt the user for their username
+    const currentUser = username;
+    // Handle form submission
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+      e.preventDefault(); // Prevent form submission
+      const message = document.getElementById('message').value;
+      const data = { message, username }; // Include the username in the message data
+      socket.emit('chat message', data);
+      document.getElementById('message').value = '';
+      const messageElement = document.createElement('li');
+      messageElement.textContent = `${username}: ${message}`;
+      messageElement.classList.add('current-user');
+      document.getElementById('messages').append(messageElement);
+      return false;
+    });
+
+    // Handle incoming messages
+    socket.on('chat message', (data) => {
+      const { message, username } = data;
+      const isCurrentUser = currentUser === username; // Check if the username matches the current user
+      const messageElement = document.createElement('li');
+      messageElement.textContent = `${username}: ${message}`;
+
+      if (isCurrentUser) {
+        messageElement.classList.add('current-user');
+      }else{
+        messageElement.classList.add("otherUser")
+        document.getElementById('messages').append(messageElement);
+      }
+
+    });
+  </script>
+</body>
+</html>
